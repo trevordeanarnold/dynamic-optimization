@@ -2,7 +2,6 @@
 #PSET 1
 #by: dean (tda27) and jihye (jjh749)
 
-
 using Pkg
 Pkg.add("CompEcon")
 
@@ -16,19 +15,14 @@ Pkg.add("CompEcon")
 function profit_max_q(a, c, mu, sigma, method, n)
     #If method is mc (Monte Carlo)
     if method == "mc" 
-    #Draw from a normal distribution
-        bq = rand(LogNormal(mu, sigma), n)
+    #Draw from a log normal distribution
+        b = rand(LogNormal(mu, sigma), n)
     #Compute profits
-        Pq = a - bq
+        P = a - b
     # Expectation = mean(x)*volume
-        return mean(Pq) 
+        return mean(P) 
     #If method is mc (Monte Carlo)
     elseif method == "quad"
-
-
-
-
-
 
 
 
