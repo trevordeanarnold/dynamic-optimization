@@ -23,7 +23,7 @@ Random.seed!(1234)
 #and a cost function:
 ## C(q) = cq
 
-using Distributions, QuadGK, Optim, CompEconcccccccccc
+using Distributions, QuadGK, Optim, CompEcon
 
 function profit_max_q(a, c, mu, sigma, method, n)
     bdist = LogNormal(mu, sigma)
@@ -53,7 +53,7 @@ end
 # 1. solve with the Monte Carlo method
 println("
 the profit maximization q derived using Monte Carlo method is
-$(profit_max_q(500, 20, 5, 0.1,"mc", 1000))"
+$(profit_max_q(500, 20, 5, 0.1,"mc", 10^8))"
 )
 
 # 2. solve with the Quadrature method
