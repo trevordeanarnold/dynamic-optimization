@@ -8,6 +8,10 @@ Pkg.add("Distributions")
 Pkg.add("QuadGK") # use  Gauss-Kronrod quadrature
 Pkg.add("Optim")
 Pkg.add("CompEcon")
+Pkg.add("FastGaussQuadrature")
+import Random
+Random.seed!(1234)
+
 
 #---------------------------------------------------------#
 #Problem 1
@@ -19,48 +23,23 @@ Pkg.add("CompEcon")
 #and a cost function:
 ## C(q) = cq
 
-import Pkg; Pkg.add("Distributions")
-import Pkg; Pkg.add("QuadGK")
-import Pkg; Pkg.add("Optim")
-import Random
-Random.seed!(1234)
-
-using Distributions, QuadGK, Optim
+using Distributions, QuadGK, Optim, FastGaussQuadrature
 
 function profit_max_q(a, c, mu, sigma, method, n)
-    # Define demand function
-    function P(q)
-        b_dist = LogNormal(mu, sigma)
-        b = rand(b_dist)
-        return a - b*q
-    end
+    bdist = LogNormal(mu, sigma)
+    qdist = x -> (a - x) / mean(bdist)
+    profit(q) = (a - mean(bdist)*q)*q - c*q
 
-    # Define profit function
-    function profit(q)
-        rev = P(q)*q
-        cost = c*q
-        return rev - cost
-    end
-
-    # Define expected profit function
-    function expected_profit(q)
-        b_dist = LogNormal(mu, sigma)
-        b_pdf(x) = pdf(b_dist, x)
-        b_cdf(x) = cdf(b_dist, x)
-        rev = quadgk(x -> P(x)*x*b_pdf(x), -Inf, q)[1] + (a - P(q))*q* b_cdf(q)
-        cost = c*q
-        return rev - cost
-    end
 
     if method == "mc"
         # Monte Carlo integration
-        q_vals = rand(LogNormal(mu, sigma), n)
-        profits = [profit(q) for q in q_vals]
-        optimal_q = q_vals[argmax(profits)]
+        q_vals = qdist.(rand(bdist, n))
+        profits = profit.(q_vals)
+        optimal_q =  q_vals[argmax(profits)]
     elseif method == "quad"
         # Gaussian quadrature integration
-        result = optimize(expected_profit, 0.0, 1000)
-        optimal_q = result.minimizer
+        integrand(q) = (a - c - q * mean(bdist)) * q
+        optimal_q, _ = quadgk(integrand, 0, a / mean(bdist))
     else
         error("Invalid method choice. Choose 'mc' or 'quad'.")
     end
@@ -71,10 +50,10 @@ end
 #part 2
 #solve the profit_max_q function with a set of values 
 # 1. solve with the Monte Carlo method
-profit_max_q(500, 20, 5, 0.1,"mc", 1000)
+profit_max_q(500, 20, 5, 0.1,"mc", 10000)
 
 # 2. solve with the Quadrature method
-profit_max_q(500, 20, 5, 0.1,"quad", 1000)
+profit_max_q(500, 20, 5, 0.1,"quad", 10000)
 
 #part 3
 #Make sure your code is type-stable by using the code introspection macros (e.g. @code_llvm, @code_warntype, @trace)
