@@ -81,7 +81,10 @@ monte_carlo_pi(10^9)
 #Problem 3: Shell scripting
 #---------------------------------------------------------#
 
-#run(`sh hw1_q3_script`)
+#Tried to run all of the following and many more for the script and failed to get it to run
+#the shell file is in this repo called hw1_q3_script.sh
+
+#run(`sh hw1_q3_script.sh`)
 #run(`sh hw1_q3_script.sh`)
 #sh ./hw1_q3_script.sh
 #run(`./hw1_q3_script.sh`)
