@@ -23,23 +23,24 @@ Random.seed!(1234)
 #and a cost function:
 ## C(q) = cq
 
-using Distributions, QuadGK, Optim, FastGaussQuadrature
+using Distributions, QuadGK, Optim, CompEconcccccccccc
 
 function profit_max_q(a, c, mu, sigma, method, n)
     bdist = LogNormal(mu, sigma)
-    qdist = x -> (a - x) / mean(bdist)
     profit(q) = (a - mean(bdist)*q)*q - c*q
-
 
     if method == "mc"
         # Monte Carlo integration
+        qdist = x -> (a - x) / mean(bdist)
         q_vals = qdist.(rand(bdist, n))
         profits = profit.(q_vals)
         optimal_q =  q_vals[argmax(profits)]
     elseif method == "quad"
-        # Gaussian quadrature integration
-        integrand(q) = (a - c - q * mean(bdist)) * q
-        optimal_q, _ = quadgk(integrand, 0, a / mean(bdist))
+        # Gauss-Legendre quadrature
+        f(q) = profit(q) * pdf(bdist, q)
+        q_vals, weights = qnwlege(n, 0, a/mean(bdist))
+        profits = profit.(q_vals)
+        optimal_q = q_vals[argmax(profits)]
     else
         error("Invalid method choice. Choose 'mc' or 'quad'.")
     end
@@ -50,13 +51,21 @@ end
 #part 2
 #solve the profit_max_q function with a set of values 
 # 1. solve with the Monte Carlo method
-profit_max_q(500, 20, 5, 0.1,"mc", 10000)
+println("
+the profit maximization q derived using Monte Carlo method is
+$(profit_max_q(500, 20, 5, 0.1,"mc", 1000))"
+)
 
 # 2. solve with the Quadrature method
-profit_max_q(500, 20, 5, 0.1,"quad", 10000)
-
+println("
+the profit maximization q derived using quadrature method is
+$(profit_max_q(500, 20, 5, 0.1,"quad", 1000))"
+)
 #part 3
 #Make sure your code is type-stable by using the code introspection macros (e.g. @code_llvm, @code_warntype, @trace)
+
+#@code_warntype (profit_max_q(500, 20, 5, 0.1,"mc", 1000))
+#@code_warntype (profit_max_q(500, 20, 5, 0.1,"quad", 1000))
 
 #---------------------------------------------------------#
 #Problem 2: Monte Carlo Integration
