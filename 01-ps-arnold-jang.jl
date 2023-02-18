@@ -71,19 +71,20 @@ $(profit_max_q(500, 20, 5, 0.1,"quad", 1000))"
 #Problem 2: Monte Carlo Integration
 #---------------------------------------------------------#
 
-function monte_carlo_pi(n::Int)
+function mc_approx_pi(n::Int)
     inside_circle = 0
+    
     for i in 1:n
-        x, y = rand(-1:1, 2)
-        if x^2 + y^2 <= 1
+        x, y = rand(), rand()
+        if x^2 + y^2 < 1
             inside_circle += 1
         end
     end
+    
     return 4 * inside_circle / n
 end
 
-monte_carlo_pi(10^4)
-
+mc_approx_pi(100000)
 
 
 #---------------------------------------------------------#
